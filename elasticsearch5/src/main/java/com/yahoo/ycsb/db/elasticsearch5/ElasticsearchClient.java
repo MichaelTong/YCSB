@@ -35,7 +35,6 @@ import org.elasticsearch.node.NodeValidationException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.elasticsearch.action.bulk.BulkProcessor;
-import org.elasticsearch.action.bulk.BulkProcessor.Listener;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
@@ -162,15 +161,10 @@ public class ElasticsearchClient extends DB {
     client.admin().cluster().health(new ClusterHealthRequest().waitForGreenStatus()).actionGet();
     bulkProcessor = BulkProcessor.builder(
                         client, 
-                        new BulkProcessor.Listener(){
-                            public void beforeBulk(long executionId, 
-                                                   BulkRequest request){}
-                            public void afterBulk(long executionId,
-                                                   BulkRequest requests,
-                                                   BulkResponse response){}
-                            public void afterBulk(long executionId,
-                                                  BulkRequest requests,
-                                                  Throwable failure){}
+                        new BulkProcessor.Listener() {
+                            public void beforeBulk(long executionId, BulkRequest request){}
+                            public void afterBulk(long executionId, BulkRequest requests, BulkResponse response){}
+                            public void afterBulk(long executionId, BulkRequest requests, Throwable failure){}
                         })
                         .setBulkActions(1000)
                         .setConcurrentRequests(1)
