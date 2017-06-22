@@ -38,6 +38,9 @@ import org.elasticsearch.action.bulk.BulkProcessor;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -165,7 +168,12 @@ public class ElasticsearchClient extends DB {
             public void beforeBulk(long executionId, BulkRequest request){}
             public void afterBulk(long executionId, BulkRequest requests, BulkResponse response){}
             public void afterBulk(long executionId, BulkRequest requests, Throwable failure){}
-        }).setBulkActions(1000).setConcurrentRequests(1).build();
+        })
+        .setBulkActions(10000)
+        .setBulkSize(new ByteSizeValue(10, ByteSizeUnit.MB))
+        .setFlushInterval(TimeValue.timeValueSeconds(10))
+        .setConcurrentRequests(1)
+        .build();
   }
 
   private int parseIntegerProperty(Properties properties, String key, int defaultValue) {
