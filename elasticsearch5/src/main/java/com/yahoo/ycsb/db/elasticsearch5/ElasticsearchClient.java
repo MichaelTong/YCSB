@@ -160,7 +160,7 @@ public class ElasticsearchClient extends DB {
               )).actionGet();
     }
     client.admin().cluster().health(new ClusterHealthRequest().waitForGreenStatus()).actionGet();
-    builkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener(){})
+    bulkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener(){})
                         .setBulkActions(1000)
                         .setConcurrentRequests(1)
                         .build();
@@ -199,7 +199,7 @@ public class ElasticsearchClient extends DB {
 
       doc.endObject();
 
-      bulkProcesscor.add(new IndexRequest(indexKey, table, key).source(doc));
+      bulkProcessor.add(new IndexRequest(indexKey, table, key).source(doc));
 
       //client.prepareIndex(indexKey, table, key).setSource(doc).execute().actionGet();
 
