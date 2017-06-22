@@ -97,7 +97,7 @@ public class ElasticsearchClient extends DB {
 
     // if properties file contains elasticsearch user defined properties
     // add it to the settings file (will overwrite the defaults).
-    settings.put(props);
+    //settings.put(props);
     final String clusterName = settings.get("cluster.name");
     System.err.println("Elasticsearch starting node = " + clusterName);
     System.err.println("Elasticsearch node path.home = " + settings.get("path.home"));
