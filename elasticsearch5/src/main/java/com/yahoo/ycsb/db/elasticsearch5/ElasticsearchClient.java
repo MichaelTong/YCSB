@@ -34,6 +34,11 @@ import org.elasticsearch.node.Node;
 import org.elasticsearch.node.NodeValidationException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.action.bulk.BackoffPolicy;
+import org.elasticsearch.action.bulk.BulkProcessor;
+import org.elasticsearch.common.unit.ByteSizeUnit;
+import org.elasticsearch.common.unit.ByteSizeValue;
+import org.elasticsearch.common.unit.TimeValue;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -61,6 +66,7 @@ public class ElasticsearchClient extends DB {
   private Client client;
   private String indexKey;
   private Boolean remoteMode;
+  private BulkProcessor bulkProcessor;
 
   /**
    * Initialize any state for this DB. Called once per DB instance; there is one
@@ -154,6 +160,10 @@ public class ElasticsearchClient extends DB {
               )).actionGet();
     }
     client.admin().cluster().health(new ClusterHealthRequest().waitForGreenStatus()).actionGet();
+    builkProcessor = BulkProcessor.builder(client, new BulkProcessor.Listener(){})
+                        .setBulkActions(1000)
+                        .setConcurrentRequests(1)
+                        .build();
   }
 
   private int parseIntegerProperty(Properties properties, String key, int defaultValue) {
@@ -189,7 +199,9 @@ public class ElasticsearchClient extends DB {
 
       doc.endObject();
 
-      client.prepareIndex(indexKey, table, key).setSource(doc).execute().actionGet();
+      bulkProcesscor.add(new IndexRequest(indexKey, table, key).source(doc));
+
+      //client.prepareIndex(indexKey, table, key).setSource(doc).execute().actionGet();
 
       return Status.OK;
     } catch (Exception e) {
